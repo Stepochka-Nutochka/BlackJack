@@ -257,7 +257,7 @@ void AboutAuthor()
 	int margin = 2; //для расстояния
 	COORD Position = { startX , startY };
 	COORD Hello;
-	Hello.Y = 3;
+	Hello.Y = 3; // 3
 	Hello.X = 30;
 
 	SetConsoleTextAttribute(h, Purple);
