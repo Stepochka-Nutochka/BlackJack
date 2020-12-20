@@ -692,6 +692,17 @@ void EndOfGame(bool defeat, bool bot, int& bank) {
 			AllPlayers[1].Score = 0;
 			AllPlayers[0].Score = 0;
 		}
+		else if (AllPlayers[0].Score == AllPlayers[1].Score)
+		{
+			SetCursor(TextPosition, 3, 50);
+			SetConsoleCursorPosition(h, TextPosition);
+			cout << endl << "Draw!";
+			AllPlayers[1].Money += bank / 2;
+			AllPlayers[0].Money += bank / 2;
+			bank = 0;
+			AllPlayers[1].Score = 0;
+			AllPlayers[0].Score = 0;
+		}
 		else if (AllPlayers[0].Score > AllPlayers[1].Score && AllPlayers[0].Score < 22)
 		{
 			SetCursor(TextPosition, 3, 50);
