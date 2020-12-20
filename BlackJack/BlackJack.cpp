@@ -110,6 +110,7 @@ void PlayGame() //ф-ия для начатия игры
 	{
 		Sleep(1000);
 		system("cls");
+		SetConsoleTextAttribute(h, YellowOnBlue);
 		Table(bank); // вывод стола со всей информацией
 		ShowBalance(0, bank);
 		SetCursor(CurrentPosititon, 3, 36);
@@ -251,20 +252,19 @@ void ShowWindowsHowToPlay(COORD Position, const int current_item, string(&items)
 	if (count == 1) {
 		GeneratteDeck();
 		SetUpCard();
-		for (int i = 0, f = 0; i < 2; i++)
+		for (int i = 0, f = 0; i < 2; i++, f++)
 		{
 
 			if (f == 0)
 			{
-				ShowCard(Position, GetCardStatuses(1, AllPlayers[0].Cards[f]), GetCardStatuses(0, AllPlayers[0].Cards[f]), Position.Y, 0); // вывод карт игрока
+				ShowCard(Position, GetCardStatuses(1, AllPlayers[0].Cards[f]), GetCardStatuses(0, AllPlayers[0].Cards[f]), Position.Y); // вывод карт игрока
 				sum += GetCardStatuses(1, AllPlayers[0].Cards[f]);
 			}
 			else
 			{
-				ShowCard(Position, GetCardStatuses(0, AllPlayers[0].Cards[f]), GetCardStatuses(0, AllPlayers[0].Cards[f]), Position.Y, 0); // вывод карт игрока
+				ShowCard(Position, GetCardStatuses(1, AllPlayers[0].Cards[f]), GetCardStatuses(0, AllPlayers[0].Cards[f]), Position.Y); // вывод карт игрока
 				sum += GetCardStatuses(0, AllPlayers[0].Cards[f]);
 			}
-			f++;
 		}
 
 
@@ -452,7 +452,7 @@ void Bets(bool DoubleDown, int& bank) {
 	{
 		bool answer = 0;
 		SetCursor(TextPosition, 10, 18);
-
+		SetConsoleTextAttribute(h, YellowOnBlue);
 		cout << "Would you like to double down?(0 - No, 1 - Yes)";
 		SetCursor(TextPosition, 3, 0);
 		cout << "                                       ";
@@ -460,9 +460,13 @@ void Bets(bool DoubleDown, int& bank) {
 		cout << "Your answers-> ";
 		cin >> answer;
 		SetCursor(TextPosition, 10, 18);
-		cout << "													";
-		
-	
+		for (int i = 0; i < 49; i++) {
+			SetConsoleTextAttribute(h, Blue);
+			cout << (char)219;
+		}
+
+
+
 		if (answer && AllPlayers[0].Money >= bank / 2)
 		{
 			AllPlayers[0].Money -= bank / 2;
@@ -480,6 +484,7 @@ void Bets(bool DoubleDown, int& bank) {
 		{
 			do
 			{
+				SetConsoleTextAttribute(h, YellowOnBlue);
 				SetCursor(TextPosition, 10, 15);
 
 				cout << "0 - show card                                                                                      ";
@@ -497,6 +502,7 @@ void Bets(bool DoubleDown, int& bank) {
 				{
 
 					AddCard(0, bank);
+
 					CalculateScore(0, bank);
 					TextPosition.Y--;
 					SetCursor(TextPosition, 3, 0);
@@ -524,7 +530,7 @@ void Bets(bool DoubleDown, int& bank) {
 
 		SetCursor(TextPosition, 35, 15);
 
-
+		SetConsoleTextAttribute(h, YellowOnBlue);
 		cout << "Type your bet:";
 		SetCursor(TextPosition, 3, 0);
 		cout << "                                       ";
@@ -538,12 +544,10 @@ void Bets(bool DoubleDown, int& bank) {
 			do
 			{
 				SetCursor(TextPosition, 35, 15);
-
-
 				cout << "Type correct value:";
 				SetCursor(TextPosition, 3, 0);
-
 				cin >> bet;
+
 			} while (bet > AllPlayers[0].Money && bet < 0);
 		}
 		AllPlayers[0].Money -= bet;
@@ -573,6 +577,10 @@ void CalculateScore(bool bot, int& bank) {
 		int j = 0, i = 0;
 		while (j < 48)
 		{
+			if (AllPlayers[(int)bot].Cards[q] == 0 && AllPlayers[(int)bot].Cards[q + 1] == 0) {
+				q = 5;
+				break;
+			}
 			if (j == AllPlayers[(int)bot].Cards[q])
 			{
 				if (Deck[i][j % 12].Denomination == Jack || Deck[i][j % 12].Denomination == Quen || Deck[i][j % 12].Denomination == King)
@@ -644,11 +652,11 @@ void BotTurn(int& bank) {
 		
 		if (f == 0)
 		{
-			ShowCard(PositionBot, GetCardStatuses(1, AllPlayers[1].Cards[f]), GetCardStatuses(0, AllPlayers[1].Cards[f]), PositionBot.Y, 0);
+			ShowCard(PositionBot, GetCardStatuses(1, AllPlayers[1].Cards[f]), GetCardStatuses(0, AllPlayers[1].Cards[f]), PositionBot.Y);
 		}
 		else
 		{
-			ShowCard(PositionBot, GetCardStatuses(0, AllPlayers[1].Cards[f]), GetCardStatuses(0, AllPlayers[1].Cards[f]), PositionBot.Y, 0); // вывод карт игрока
+			ShowCard(PositionBot, GetCardStatuses(1, AllPlayers[1].Cards[f]), GetCardStatuses(0, AllPlayers[1].Cards[f]), PositionBot.Y); // вывод карт игрока
 		}
 		ShowBalance(1, bank);
 	}
@@ -683,11 +691,9 @@ void EndOfGame(bool defeat, bool bot, int& bank) {
 
 	}
 }
-void ShowCard(COORD& CardPosition, int value, int suit, int i, bool AddDistanse) {
+void ShowCard(COORD& CardPosition, int value, int suit, int i) {
 	HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
 	COORD symbol;
-	if (AddDistanse)
-		CardPosition.X += card_size + 2; //где будет начинаться рамочка по иксам
 	CardPosition.Y = i; //где будет начинаться рамочка по игрикам. Наша позиция вовыда равна игрику 
 	SetConsoleTextAttribute(h, Yellow);
 	SetConsoleCursorPosition(h, CardPosition); //вывод этих координат
@@ -795,6 +801,14 @@ void Table(int& bank) {
 	int YBot = 3;
 	int XPlayer = 3;
 	int YPlayer = 22;
+
+	for (int y = 0; y < 50; y++) {
+		for (int x = 0; x < 80; x++) {
+			SetConsoleTextAttribute(h, Blue);
+			cout << (char)219;
+		}
+	}
+
 	for (int i = 0, f = 0; i < 2; i++, f++)
 	{
 		if (f == 0)
@@ -821,37 +835,31 @@ void Table(int& bank) {
 	code = _getch();
 
 
-	if (code == ESC) {
-
-		MainMenu();
-	}
 	if (code == ENTER) {
 
 		SetUpCard();
 		CalculateScore(0, bank);
-		SetCursor(PositionSentences, 60, 1);
-		cout << "Bot's money: " << AllPlayers[1].Money;
-		SetCursor(PositionSentences, 60, 20);
-		cout << "Your money: " << AllPlayers[1].Money;
+		ShowMoney();
 		Bets(0, bank);
+
 		for (int i = 0, f = 0; i < 2; i++, f++)
 		{
 			if (f == 0)
 			{
-				ShowCard(PositionPlayer, GetCardStatuses(1, AllPlayers[0].Cards[f]), GetCardStatuses(0, AllPlayers[0].Cards[f]), PositionPlayer.Y, 0); // вывод карт игрока
+				ShowCard(PositionPlayer, GetCardStatuses(1, AllPlayers[0].Cards[f]), GetCardStatuses(0, AllPlayers[0].Cards[f]), PositionPlayer.Y); // вывод карт игрока
 			}
 			else
 			{
-				ShowCard(PositionPlayer, GetCardStatuses(0, AllPlayers[0].Cards[f]), GetCardStatuses(0, AllPlayers[0].Cards[f]), PositionPlayer.Y, 0); // вывод карт игрока
+				ShowCard(PositionPlayer, GetCardStatuses(1, AllPlayers[0].Cards[f]), GetCardStatuses(0, AllPlayers[0].Cards[f]), PositionPlayer.Y); // вывод карт игрока
 			}
 		}
-
 
 	}
 	else {
 		Table(bank);
 	}
-
+	ShowBalance(0, bank);
+	ShowMoney();
 
 }
 void ShowBackCard(COORD& CardPosition, int& X, int& Y, bool AddDistanse) {
@@ -897,17 +905,32 @@ void ShowBackCard(COORD& CardPosition, int& X, int& Y, bool AddDistanse) {
 	CardPosition.X += card_size + 2;
 }
 void ShowBalance(bool bot, int& bank) {
+	HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE); //дескриптор на вывод
+	SetConsoleTextAttribute(h, YellowOnBlue);
 	COORD CurrentPosititon;
 	if (bot)
 	{
 		CalculateScore(1, bank);
-		SetCursor(CurrentPosititon, 3, 30);
-		cout << "Bot score - " << AllPlayers[1].Score;
+		SetCursor(CurrentPosititon, 3, 14);
+		cout << "\n                                                                                \n                                              ";
+		SetCursor(CurrentPosititon, 3, 15);
+		cout << "\n\tBot score - " << AllPlayers[1].Score;
 	}
 	else
 	{
+		SetConsoleTextAttribute(h, YellowOnBlue);
 		CalculateScore(0, bank);
 		SetCursor(CurrentPosititon, 3, 70);
 		cout << "\n\n\n\tYour score - " << AllPlayers[0].Score;
 	}
+}
+void ShowMoney() {
+
+	HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE); //дескриптор на вывод
+	SetConsoleTextAttribute(h, YellowOnBlue);
+	COORD PositionSentences;
+	SetCursor(PositionSentences, 60, 1);
+	cout << "Bot's money: " << AllPlayers[1].Money;
+	SetCursor(PositionSentences, 60, 20);
+	cout << "Your money: " << AllPlayers[0].Money;
 }
