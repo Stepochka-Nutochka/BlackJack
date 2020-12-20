@@ -22,3 +22,4 @@ void Table(int& bank);
 void ShowBackCard(COORD& CardPosition, int& X, int& Y, bool AddDistanse);
 void ShowBalance(bool bot, int& bank);
 void ShowMoney();
+void ShowCards(int& bank);
